@@ -1,6 +1,6 @@
 {
   "name": "pi-read-guard",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Pi extension that prevents massive unbudgeted full-file reads, steering the agent to offset/limit or search tools. Zero prompt tokens.",
   "keywords": ["pi-package", "pi-extension", "tokens", "read", "guard", "budget"],
   "license": "MIT",
