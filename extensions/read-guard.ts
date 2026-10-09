@@ -18,9 +18,10 @@
  */
 
 import { existsSync } from "node:fs";
-import { readFile } from "node:fs/promises";
+import { open, readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, isAbsolute, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
 interface Config {
@@ -52,15 +53,91 @@ async function loadConfig(): Promise<Config> {
 	}
 }
 
-function matchesIgnore(path: string, patterns: string[]): boolean {
+/** Minimal glob (`*` = anything except `/`) against the path or its basename. */
+export function matchesIgnore(path: string, patterns: string[]): boolean {
 	return patterns.some((pat) => {
-		const re = new RegExp(`^${pat.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^/]*")}$`);
+		if (pat.length > 256) return false; // absurd pattern: ignore it rather than risk slow matching
+		const body = pat.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*+/g, "*").replace(/\*/g, "[^/]*");
+		const re = new RegExp(`^${body}$`);
 		return re.test(path) || re.test(basename(path));
 	});
 }
 
-function countLines(text: string): number {
-	return text === "" ? 0 : text.split("\n").length;
+
+// ---------------------------------------------------------------------------
+// Path handling — mirrors pi's own tool path resolution (`resolveToCwd`), so the
+// guard looks at the same file the tool will: `@file`, `~/file`, `file://…`,
+// Unicode spaces and Windows shell paths are normalised exactly as pi does.
+// ---------------------------------------------------------------------------
+
+const UNICODE_SPACES = /[\u00A0\u2000-\u200A\u202F\u205F\u3000]/g;
+
+function normalizeWindowsShellPath(filePath: string): string {
+	if (!filePath.startsWith("/") || filePath.startsWith("//") || filePath.includes("\\")) return filePath;
+	const m = filePath.match(/^\/(?:mnt\/|cygdrive\/)?([a-z])(?:\/(.*))?$/i);
+	if (!m) return filePath;
+	return `${m[1].toUpperCase()}:\\${m[2]?.replaceAll("/", "\\") ?? ""}`;
+}
+
+export function resolveToolPath(
+	input: string,
+	cwd: string,
+	home: string = homedir(),
+	platform: string = process.platform,
+): string {
+	let p = input.replace(UNICODE_SPACES, " ");
+	if (p.startsWith("@")) p = p.slice(1);
+	if (platform === "win32") p = normalizeWindowsShellPath(p);
+	if (p === "~") p = home;
+	else if (p.startsWith("~/") || (platform === "win32" && p.startsWith("~\\"))) p = join(home, p.slice(2));
+	if (/^file:\/\//.test(p)) {
+		try {
+			p = fileURLToPath(p);
+		} catch {
+			/* malformed URL: leave as is; the tool will report it */
+		}
+	}
+	return isAbsolute(p) ? resolve(p) : resolve(cwd, p);
+}
+
+/**
+ * Count lines without loading the file: constant memory, and it stops as soon as
+ * `cap` is exceeded. `lines` is exact unless `capped`.
+ */
+export async function countLinesCapped(path: string, cap: number): Promise<{ lines: number; capped: boolean }> {
+	const fh = await open(path, "r");
+	try {
+		const buf = Buffer.allocUnsafe(64 * 1024);
+		let newlines = 0;
+		let size = 0;
+		for (;;) {
+			const { bytesRead } = await fh.read(buf, 0, buf.length, null);
+			if (bytesRead === 0) break;
+			size += bytesRead;
+			for (let i = 0; i < bytesRead; i++) if (buf[i] === 10) newlines++;
+			if (newlines + 1 > cap) return { lines: cap, capped: true };
+		}
+		return { lines: size === 0 ? 0 : newlines + 1, capped: false };
+	} finally {
+		await fh.close();
+	}
+}
+
+/** Lines counted exactly up to this many beyond the limit; past that the message says "over N". */
+const COUNT_HEADROOM = 10_000;
+
+/**
+ * The file pi's `read` tool will actually open: besides normal resolution it falls back
+ * to macOS filename variants (narrow no-break space before AM/PM, NFD, curly quotes).
+ */
+export function resolveReadTarget(raw: string, cwd: string): string {
+	const resolved = resolveToolPath(raw, cwd);
+	if (existsSync(resolved)) return resolved;
+	const curly = (v: string) => v.replace(/'/g, "\u2019");
+	const nfd = resolved.normalize("NFD");
+	const candidates = [resolved.replace(/ (AM|PM)\./gi, "\u202F$1."), nfd, curly(resolved), curly(nfd)];
+	for (const c of candidates) if (c !== resolved && existsSync(c)) return c;
+	return resolved;
 }
 
 export default function readGuard(pi: ExtensionAPI) {
@@ -76,45 +153,50 @@ export default function readGuard(pi: ExtensionAPI) {
 		allowed.clear();
 	});
 
-	pi.on("tool_call", async (event, ctx) => {
+	/**
+	 * pi BLOCKS the tool when a `tool_call` handler throws, so a bug here must never
+	 * stop legitimate work: any unexpected error means "allow".
+	 */
+	const guard = async (event: any, ctx: any) => {
 		if (!enabled || event.toolName !== "read") return undefined;
 
 		const raw = event.input?.path;
 		if (typeof raw !== "string" || raw === "") return undefined;
-		const abs = isAbsolute(raw) ? raw : resolve(ctx.cwd, raw);
+		const abs = resolveReadTarget(raw, ctx.cwd);
 
 		if (allowed.has(abs) || matchesIgnore(raw, config.ignore)) return undefined;
 
-		// If caller provided offset or limit, they are already budgeting reads
-		const limit = event.input?.limit;
-		const offset = event.input?.offset;
-		if (typeof limit === "number" || typeof offset === "number") {
+		// If the caller provided offset or limit, they are already budgeting the read.
+		if (typeof event.input?.limit === "number" || typeof event.input?.offset === "number") return undefined;
+
+		if (!existsSync(abs)) return undefined;
+		let count: { lines: number; capped: boolean };
+		try {
+			count = await countLinesCapped(abs, config.maxReadLines + COUNT_HEADROOM);
+		} catch {
 			return undefined;
 		}
+		if (count.lines <= config.maxReadLines) return undefined;
 
-		if (existsSync(abs)) {
-			let lines = 0;
-			try {
-				lines = countLines(await readFile(abs, "utf8"));
-			} catch {
-				return undefined;
-			}
+		blocked++;
+		const size = count.capped ? `over ${count.lines} lines` : `${count.lines} lines`;
+		if (ctx.hasUI) ctx.ui.notify(`read-guard: blocked full read of ${raw} (${size})`, "warning");
+		return {
+			block: true as const,
+			reason:
+				`"${raw}" has ${size} (exceeds maxReadLines=${config.maxReadLines}). ` +
+				`Do not read large files entirely. Use \`read\` with offset and limit (e.g. limit=100), ` +
+				`or use \`rg\` / \`codegraph_search\` to locate relevant sections first. ` +
+				`To read the full file, ask the user to run /read-guard allow ${raw}.`,
+		};
+	};
 
-			if (lines > config.maxReadLines) {
-				blocked++;
-				if (ctx.hasUI) ctx.ui.notify(`read-guard: blocked full read of ${raw} (${lines} lines)`, "warning");
-				return {
-					block: true as const,
-					reason:
-						`"${raw}" has ${lines} lines (exceeds maxReadLines=${config.maxReadLines}). ` +
-						`Do not read large files entirely. Use \`read\` with offset and limit (e.g. limit=100), ` +
-						`or use \`rg\` / \`codegraph_search\` to locate relevant sections first. ` +
-						`To read the full file, ask the user to run /read-guard allow ${raw}.`,
-				};
-			}
+	pi.on("tool_call", async (event, ctx) => {
+		try {
+			return await guard(event, ctx);
+		} catch {
+			return undefined;
 		}
-
-		return undefined;
 	});
 
 	pi.registerCommand("read-guard", {
@@ -125,7 +207,7 @@ export default function readGuard(pi: ExtensionAPI) {
 			else if (cmd === "on") enabled = true;
 			else if (cmd === "allow" && rest.length > 0) {
 				const p = rest.join(" ");
-				allowed.add(isAbsolute(p) ? p : resolve(ctx.cwd, p));
+				allowed.add(resolveReadTarget(p, ctx.cwd));
 				ctx.ui.notify(`read-guard: full read of ${p} allowed this session`, "info");
 				return;
 			}

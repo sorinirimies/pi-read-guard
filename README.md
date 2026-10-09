@@ -31,6 +31,14 @@ pi install git:github.com/sorinirimies/pi-read-guard
 { "maxReadLines": 200, "ignore": ["*.md", "*.json"] }
 ```
 
+## Security notes
+
+- **A token saver, not a sandbox.** It guards pi's `read` tool. An agent can still read files through `bash` (`cat`); the guard keeps accidental full-file reads out of your context, nothing more.
+- **Same path as the tool.** Paths are resolved exactly like pi's own `read` (`@file`, `~/file`, `file://`, Unicode spaces, Windows shell paths, and the macOS filename variants it falls back to), so those spellings can't slip past it. A contract test compares it with pi's real `resolveToCwd`.
+- **Fails open.** pi blocks a tool when a `tool_call` handler throws, so any unexpected error here means "allow".
+- **Constant memory.** Line counts are streamed (64 KB chunks, early exit), never the whole file.
+- No network access, no shell commands, **zero runtime dependencies**.
+
 ## Development
 
 ```bash
