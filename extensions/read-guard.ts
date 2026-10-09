@@ -30,11 +30,14 @@ interface Config {
 
 const DEFAULTS: Config = { maxReadLines: 200, ignore: [] };
 
-function agentDir(): string {
-	if (process.env.PI_CODING_AGENT_DIR) return process.env.PI_CODING_AGENT_DIR;
-	if (process.env.XDG_CONFIG_HOME) return join(process.env.XDG_CONFIG_HOME, "pi", "agent");
-	return join(homedir(), ".pi", "agent");
+/** Where pi keeps its config: PI_CODING_AGENT_DIR, then $XDG_CONFIG_HOME/pi/agent, then ~/.pi/agent. */
+export function resolveAgentDir(env: Record<string, string | undefined>, home: string): string {
+	if (env.PI_CODING_AGENT_DIR) return env.PI_CODING_AGENT_DIR;
+	if (env.XDG_CONFIG_HOME) return join(env.XDG_CONFIG_HOME, "pi", "agent");
+	return join(home, ".pi", "agent");
 }
+
+const agentDir = () => resolveAgentDir(process.env, homedir());
 
 async function loadConfig(): Promise<Config> {
 	try {
