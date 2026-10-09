@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { mkdtempSync, writeFileSync, rmSync, mkdirSync, existsSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 import readGuard, { countLinesCapped, matchesIgnore, resolveToolPath, resolveReadTarget } from "../extensions/read-guard.ts";
 
 const lines = (n: number) => Array.from({ length: n }, (_, i) => `line ${i + 1}`).join("\n");
@@ -33,7 +33,8 @@ describe("resolveToolPath", () => {
 	});
 
 	it("turns file:// URLs into paths, and leaves malformed ones alone", () => {
-		expect(resolveToolPath("file:///tmp/x.ts", cwd, home, "linux")).toBe(r(fileURLToPath("file:///tmp/x.ts")));
+		const url = pathToFileURL(r("/tmp/x.ts")).href; // valid on every OS (Windows needs a drive letter)
+		expect(resolveToolPath(url, cwd, home, "linux")).toBe(r("/tmp/x.ts"));
 		expect(() => resolveToolPath("file://%zz", cwd, home, "linux")).not.toThrow();
 	});
 
