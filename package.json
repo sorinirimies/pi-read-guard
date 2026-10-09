@@ -1,0 +1,16 @@
+{
+  "name": "pi-read-guard",
+  "version": "0.1.0",
+  "description": "Pi extension that prevents massive unbudgeted full-file reads, steering the agent to offset/limit or search tools. Zero prompt tokens.",
+  "keywords": ["pi-package", "pi-extension", "tokens", "read", "guard", "budget"],
+  "license": "MIT",
+  "author": "sorinirimies",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sorinirimies/pi-read-guard.git"
+  },
+  "homepage": "https://github.com/sorinirimies/pi-read-guard#readme",
+  "files": ["extensions", "README.md", "LICENSE"],
+  "pi": { "extensions": ["./extensions/read-guard.ts"] },
+  "peerDependencies": { "@earendil-works/pi-coding-agent": "*" }
+}
