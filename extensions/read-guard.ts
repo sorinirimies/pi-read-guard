@@ -101,8 +101,8 @@ export function resolveToolPath(
 }
 
 /**
- * Count lines without loading the file: constant memory, and it stops as soon as
- * `cap` is exceeded. `lines` is exact unless `capped`.
+ * Count lines without loading the file: constant memory, and it stops as soon as `cap` is
+ * exceeded. Counts like `wc -l`, plus an unterminated last line. `lines` is exact unless `capped`.
  */
 export async function countLinesCapped(path: string, cap: number): Promise<{ lines: number; capped: boolean }> {
 	const fh = await open(path, "r");
@@ -110,14 +110,17 @@ export async function countLinesCapped(path: string, cap: number): Promise<{ lin
 		const buf = Buffer.allocUnsafe(64 * 1024);
 		let newlines = 0;
 		let size = 0;
+		let lastByte = 0;
 		for (;;) {
 			const { bytesRead } = await fh.read(buf, 0, buf.length, null);
 			if (bytesRead === 0) break;
 			size += bytesRead;
 			for (let i = 0; i < bytesRead; i++) if (buf[i] === 10) newlines++;
-			if (newlines + 1 > cap) return { lines: cap, capped: true };
+			lastByte = buf[bytesRead - 1];
+			if (newlines > cap) return { lines: cap, capped: true }; // at least `newlines` lines: past the cap
 		}
-		return { lines: size === 0 ? 0 : newlines + 1, capped: false };
+		const lines = size === 0 ? 0 : newlines + (lastByte === 10 ? 0 : 1);
+		return lines > cap ? { lines: cap, capped: true } : { lines, capped: false };
 	} finally {
 		await fh.close();
 	}

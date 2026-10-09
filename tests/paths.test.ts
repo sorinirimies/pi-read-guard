@@ -85,22 +85,26 @@ describe("countLinesCapped", () => {
 		return p;
 	};
 
-	it("counts like the old split('\\n') did", async () => {
+	it("counts like wc -l, plus an unterminated last line", async () => {
 		expect(await countLinesCapped(file(""), 100)).toEqual({ lines: 0, capped: false });
 		expect(await countLinesCapped(file("a"), 100)).toEqual({ lines: 1, capped: false });
-		expect(await countLinesCapped(file("a\n"), 100)).toEqual({ lines: 2, capped: false });
+		expect(await countLinesCapped(file("a\n"), 100)).toEqual({ lines: 1, capped: false }); // a trailing newline is not a line
 		expect(await countLinesCapped(file("a\nb\nc"), 100)).toEqual({ lines: 3, capped: false });
-		expect(await countLinesCapped(file("a\r\nb\r\n"), 100)).toEqual({ lines: 3, capped: false });
+		expect(await countLinesCapped(file("a\nb\nc\n"), 100)).toEqual({ lines: 3, capped: false });
+		expect(await countLinesCapped(file("a\r\nb\r\n"), 100)).toEqual({ lines: 2, capped: false });
+		expect(await countLinesCapped(file("\n\n\n"), 100)).toEqual({ lines: 3, capped: false });
 	});
 
-	it("is exact at the cap and flags anything beyond it", async () => {
+	it("is exact at the cap and flags anything beyond it (terminated or not)", async () => {
 		expect(await countLinesCapped(file(lines(10)), 10)).toEqual({ lines: 10, capped: false });
+		expect(await countLinesCapped(file(lines(10) + "\n"), 10)).toEqual({ lines: 10, capped: false });
 		expect(await countLinesCapped(file(lines(11)), 10)).toEqual({ lines: 10, capped: true });
+		expect(await countLinesCapped(file(lines(11) + "\n"), 10)).toEqual({ lines: 10, capped: true });
 	});
 
 	it("counts across read-chunk boundaries and never loads the whole file", async () => {
 		const big = file("x\n".repeat(200_000)); // ~400 KB, several 64 KB chunks
-		expect(await countLinesCapped(big, 1_000_000)).toEqual({ lines: 200_001, capped: false });
+		expect(await countLinesCapped(big, 1_000_000)).toEqual({ lines: 200_000, capped: false });
 		const t = performance.now();
 		expect(await countLinesCapped(big, 100)).toEqual({ lines: 100, capped: true });
 		expect(performance.now() - t).toBeLessThan(500);
@@ -182,6 +186,13 @@ describe("pi-read-guard against pi's path forms and failure modes", () => {
 		expect(await call({ path: "big.txt" }, hostile)).toBeUndefined();
 		const noisy: any = { cwd: work, hasUI: true, ui: { notify: () => { throw new Error("ui down"); } } };
 		expect(await call({ path: "big.txt" }, noisy)).toBeUndefined(); // even the notify failing must not block… or crash
+	});
+
+	it("the message reports the real line count: a trailing newline is not an extra line", async () => {
+		writeFileSync(join(work, "terminated.txt"), lines(250) + "\n");
+		writeFileSync(join(work, "unterminated.txt"), lines(250));
+		expect((await call({ path: "terminated.txt" })).reason).toContain("has 250 lines");
+		expect((await call({ path: "unterminated.txt" })).reason).toContain("has 250 lines");
 	});
 
 	it("handles a huge file in constant memory and says 'over N lines'", async () => {
