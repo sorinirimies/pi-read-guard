@@ -1,53 +1,56 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { mkdtempSync, writeFileSync, rmSync, mkdirSync, existsSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
-import { join } from "node:path";
-import { pathToFileURL } from "node:url";
+import { join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import readGuard, { countLinesCapped, matchesIgnore, resolveToolPath, resolveReadTarget } from "../extensions/read-guard.ts";
 
 const lines = (n: number) => Array.from({ length: n }, (_, i) => `line ${i + 1}`).join("\n");
 
 describe("resolveToolPath", () => {
+	// Expectations go through path.resolve / join so they hold on Windows too.
 	const cwd = "/work/proj";
 	const home = "/home/u";
+	const norm = (s: string) => s.replace(/\\/g, "/");
+	const r = (...p: string[]) => resolve(...p);
 
 	it("resolves relative and absolute paths", () => {
-		expect(resolveToolPath("a/b.ts", cwd, home, "linux")).toBe("/work/proj/a/b.ts");
-		expect(resolveToolPath("/abs/x.ts", cwd, home, "linux")).toBe("/abs/x.ts");
-		expect(resolveToolPath("../up.ts", cwd, home, "linux")).toBe("/work/up.ts");
+		expect(resolveToolPath("a/b.ts", cwd, home, "linux")).toBe(r(cwd, "a/b.ts"));
+		expect(resolveToolPath("/abs/x.ts", cwd, home, "linux")).toBe(r("/abs/x.ts"));
+		expect(resolveToolPath("../up.ts", cwd, home, "linux")).toBe(r(cwd, "../up.ts"));
 	});
 
 	it("strips a leading @ (pi's file-mention syntax)", () => {
-		expect(resolveToolPath("@src/a.ts", cwd, home, "linux")).toBe("/work/proj/src/a.ts");
-		expect(resolveToolPath("@/abs/a.ts", cwd, home, "linux")).toBe("/abs/a.ts");
+		expect(resolveToolPath("@src/a.ts", cwd, home, "linux")).toBe(r(cwd, "src/a.ts"));
+		expect(resolveToolPath("@/abs/a.ts", cwd, home, "linux")).toBe(r("/abs/a.ts"));
 	});
 
 	it("expands ~ and ~/", () => {
-		expect(resolveToolPath("~", cwd, home, "linux")).toBe("/home/u");
-		expect(resolveToolPath("~/notes/x.md", cwd, home, "linux")).toBe("/home/u/notes/x.md");
-		expect(resolveToolPath("@~/x", cwd, home, "linux")).toBe("/home/u/x");
-		expect(resolveToolPath("~user/x", cwd, home, "linux")).toBe("/work/proj/~user/x"); // not expanded, like pi
+		expect(resolveToolPath("~", cwd, home, "linux")).toBe(r(home));
+		expect(resolveToolPath("~/notes/x.md", cwd, home, "linux")).toBe(r(join(home, "notes/x.md")));
+		expect(resolveToolPath("@~/x", cwd, home, "linux")).toBe(r(join(home, "x")));
+		expect(resolveToolPath("~user/x", cwd, home, "linux")).toBe(r(cwd, "~user/x")); // not expanded, like pi
 	});
 
 	it("turns file:// URLs into paths, and leaves malformed ones alone", () => {
-		expect(resolveToolPath("file:///tmp/x.ts", cwd, home, "linux")).toBe("/tmp/x.ts");
+		expect(resolveToolPath("file:///tmp/x.ts", cwd, home, "linux")).toBe(r(fileURLToPath("file:///tmp/x.ts")));
 		expect(() => resolveToolPath("file://%zz", cwd, home, "linux")).not.toThrow();
 	});
 
 	it("normalises Unicode spaces to a plain space", () => {
-		expect(resolveToolPath("a\u00A0b\u202Fc\u3000d.ts", cwd, home, "linux")).toBe("/work/proj/a b c d.ts");
+		expect(resolveToolPath("a\u00A0b\u202Fc\u3000d.ts", cwd, home, "linux")).toBe(r(cwd, "a b c d.ts"));
 	});
 
 	it("handles Windows shell paths and ~\\ on win32 only", () => {
-		expect(resolveToolPath("/c/Users/me/x.ts", cwd, home, "win32")).toContain("C:\\Users\\me\\x.ts");
-		expect(resolveToolPath("/mnt/d/proj/x.ts", cwd, home, "win32")).toContain("D:\\proj\\x.ts");
-		expect(resolveToolPath("/cygdrive/e/x", cwd, home, "win32")).toContain("E:\\x");
-		expect(resolveToolPath("/c", cwd, home, "win32")).toContain("C:\\");
-		expect(resolveToolPath("//server/share/x", cwd, home, "win32")).toContain("server/share/x");
-		expect(resolveToolPath("/usr/bin\\x", cwd, home, "win32")).toContain("/usr/bin\\x");
-		expect(resolveToolPath("/etc/hosts", cwd, home, "win32")).toContain("/etc/hosts"); // not a drive path
-		expect(resolveToolPath("~\\x", cwd, home, "win32")).toContain("x");
-		expect(resolveToolPath("/c/Users/me/x.ts", cwd, home, "linux")).toBe("/c/Users/me/x.ts");
+		expect(norm(resolveToolPath("/c/Users/me/x.ts", cwd, home, "win32"))).toContain("C:/Users/me/x.ts");
+		expect(norm(resolveToolPath("/mnt/d/proj/x.ts", cwd, home, "win32"))).toContain("D:/proj/x.ts");
+		expect(norm(resolveToolPath("/cygdrive/e/x", cwd, home, "win32"))).toContain("E:/x");
+		expect(norm(resolveToolPath("/c", cwd, home, "win32"))).toContain("C:");
+		expect(norm(resolveToolPath("//server/share/x", cwd, home, "win32"))).toMatch(/server\/share\/x/);
+		expect(norm(resolveToolPath("/usr/bin\\x", cwd, home, "win32"))).toContain("/usr/bin/x"); // has a backslash: left alone
+		expect(norm(resolveToolPath("/etc/hosts", cwd, home, "win32"))).toContain("/etc/hosts"); // not a drive path
+		expect(norm(resolveToolPath("~\\x", cwd, home, "win32"))).toContain("home/u/x");
+		expect(resolveToolPath("/c/Users/me/x.ts", cwd, home, "linux")).toBe(r("/c/Users/me/x.ts"));
 	});
 });
 
