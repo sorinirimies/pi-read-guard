@@ -3,6 +3,12 @@
 Generated from [Conventional Commits](https://www.conventionalcommits.org) by
 [git-cliff](https://git-cliff.org). Do not edit by hand.
 
+## [0.1.3](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.3) — 2026-10-10
+
+
+### 🔧 Build & CI
+
+- **deps:** Bump actions/setup-node from 4.4.0 to 7.0.0 ([`c74bacd`](https://github.com/sorinirimies/pi-read-guard/commit/c74bacd59cf6aa01d9baef34c1b1632d820cb4dd))
 ## [0.1.2](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.2) — 2026-10-09
 
 
