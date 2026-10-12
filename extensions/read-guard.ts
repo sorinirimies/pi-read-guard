@@ -20,7 +20,7 @@
 import { existsSync } from "node:fs";
 import { open, readFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { basename, isAbsolute, join, resolve } from "node:path";
+import { basename, extname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
@@ -126,6 +126,25 @@ export async function countLinesCapped(path: string, cap: number): Promise<{ lin
 	}
 }
 
+/** Files pi shows as images or documents: a "line" count means nothing for them. */
+const BINARY_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".ico", ".tif", ".tiff", ".heic", ".avif", ".pdf"]);
+
+/**
+ * Is this a binary file (an image, a PDF, any file with a NUL byte near the start)? Such files are never "large
+ * text": their newline bytes are noise, and blocking an image read would break screenshots.
+ */
+export async function isBinary(path: string): Promise<boolean> {
+	if (BINARY_EXTENSIONS.has(extname(path).toLowerCase())) return true;
+	const fh = await open(path, "r");
+	try {
+		const buf = Buffer.alloc(8192);
+		const { bytesRead } = await fh.read(buf, 0, buf.length, 0);
+		return buf.subarray(0, bytesRead).includes(0);
+	} finally {
+		await fh.close();
+	}
+}
+
 /** Lines counted exactly up to this many beyond the limit; past that the message says "over N". */
 const COUNT_HEADROOM = 10_000;
 
@@ -175,6 +194,7 @@ export default function readGuard(pi: ExtensionAPI) {
 		if (!existsSync(abs)) return undefined;
 		let count: { lines: number; capped: boolean };
 		try {
+			if (await isBinary(abs)) return undefined;
 			count = await countLinesCapped(abs, config.maxReadLines + COUNT_HEADROOM);
 		} catch {
 			return undefined;

@@ -14,6 +14,7 @@ Enforcement lives in a `tool_call` hook, so it adds **zero tokens to the system 
 ## Rules
 
 - `read` on any file with more than `maxReadLines` (default 200) without `offset` or `limit` is **blocked**.
+- **Images, PDFs and any binary file are never blocked** (a NUL byte in the first 8 KB, or an image/PDF extension): their newline bytes are noise, and blocking them would break screenshots.
 - The model is steered to read a slice with `offset`/`limit`, or to search first (`rg`, `codegraph_search`).
 
 ## Install
