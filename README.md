@@ -19,9 +19,15 @@ Enforcement lives in a `tool_call` hook, so it adds **zero tokens to the system 
 
 ## Install
 
+From npm:
+
 ```bash
 pi install npm:pi-read-guard
-# or
+```
+
+Or from git:
+
+```bash
 pi install git:github.com/sorinirimies/pi-read-guard
 ```
 
