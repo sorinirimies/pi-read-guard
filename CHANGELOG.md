@@ -3,6 +3,16 @@
 Generated from [Conventional Commits](https://www.conventionalcommits.org) by
 [git-cliff](https://git-cliff.org). Do not edit by hand.
 
+## [0.1.9](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.9) — 2026-10-14
+
+
+### 📚 Docs
+
+- Separate install commands for individual copy ([`1504fa3`](https://github.com/sorinirimies/pi-read-guard/commit/1504fa347cc4a5e3f45df295d4cd69a9c00f446f))
+
+### 🔧 Build & CI
+
+- Don't release on ci(deps) (GitHub Actions) bumps ([`262012b`](https://github.com/sorinirimies/pi-read-guard/commit/262012b48f19285d18a3bad8ce5f4a3eeb14d429))
 ## [0.1.7](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.7) — 2026-10-12
 
 
