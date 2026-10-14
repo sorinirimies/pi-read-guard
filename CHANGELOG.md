@@ -3,23 +3,22 @@
 Generated from [Conventional Commits](https://www.conventionalcommits.org) by
 [git-cliff](https://git-cliff.org). Do not edit by hand.
 
+## [0.1.9](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.9) — 2026-10-14
+
+
+### 📚 Docs
+
+- Separate install commands for individual copy ([`6f1a39a`](https://github.com/sorinirimies/pi-read-guard/commit/6f1a39a3cafa3132f1cfb113d59ae76b5ee1efc5))
+
+### 🔧 Build & CI
+
+- Don't release on ci(deps) (GitHub Actions) bumps ([`0b9ce1d`](https://github.com/sorinirimies/pi-read-guard/commit/0b9ce1dd993dc9dabae28caa231e66c90a11872e))
 ## [0.1.7](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.7) — 2026-10-12
 
 
 ### 🐛 Fixes
 
 - Never block images, PDFs or other binary files (a PNG has hundreds of newline bytes and was reported as '897 lines') ([`ae36673`](https://github.com/sorinirimies/pi-read-guard/commit/ae36673e1134501eb8831a3585b2fa958c821dc5))
-
-### 🔧 Build & CI
-
-- Restore the Gitea nightly and release workflows (both hosts run the full pipeline in parallel) ([`c88b439`](https://github.com/sorinirimies/pi-read-guard/commit/c88b43937d22fd63ddbb276c642eab2a2047f4a7))
-
-### 🧹 Chores
-
-- Just recipes to push, pull and force-push to several remotes (push-all, pull-all, push-tags-all, *-force, sync-starscream, setup-remotes; release-push goes to every remote) ([`ebecb81`](https://github.com/sorinirimies/pi-read-guard/commit/ebecb81fe0e1db5009b94f59d3d4a324409e3d3d))
-- Justfile remotes and release recipes in the gitkraft style (gitea-microlab, gitea-starscream, gitea-nexus-lab: push, pull, release, sync, all-remotes and force variants; unconfigured remotes are skipped) ([`f08a363`](https://github.com/sorinirimies/pi-read-guard/commit/f08a363cd748c2400eeb19f7c9166652357d48fc))
-## [0.1.6](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.6) — 2026-10-12
-
 
 ### 📚 Docs
 
@@ -32,6 +31,12 @@ Generated from [Conventional Commits](https://www.conventionalcommits.org) by
 ### 🔧 Build & CI
 
 - **deps:** Bump taiki-e/install-action from 2.87.26 to 2.87.27 (#4) ([`1415f43`](https://github.com/sorinirimies/pi-read-guard/commit/1415f4375e13031c7c01cc553e875be8c2e34593))
+- Restore the Gitea nightly and release workflows (both hosts run the full pipeline in parallel) ([`c88b439`](https://github.com/sorinirimies/pi-read-guard/commit/c88b43937d22fd63ddbb276c642eab2a2047f4a7))
+
+### 🧹 Chores
+
+- Just recipes to push, pull and force-push to several remotes (push-all, pull-all, push-tags-all, *-force, sync-starscream, setup-remotes; release-push goes to every remote) ([`ebecb81`](https://github.com/sorinirimies/pi-read-guard/commit/ebecb81fe0e1db5009b94f59d3d4a324409e3d3d))
+- Justfile remotes and release recipes in the gitkraft style (gitea-microlab, gitea-starscream, gitea-nexus-lab: push, pull, release, sync, all-remotes and force variants; unconfigured remotes are skipped) ([`f08a363`](https://github.com/sorinirimies/pi-read-guard/commit/f08a363cd748c2400eeb19f7c9166652357d48fc))
 ## [0.1.5](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.5) — 2026-10-12
 
 
