@@ -79,7 +79,10 @@ jobs:
           gh pr merge "$NUMBER" --repo "$REPO" --squash --delete-branch
           echo "merged=true" >> "$GITHUB_OUTPUT"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GITHUB_TOKEN cannot merge PRs that change .github/workflows/* (no `workflows`
+          # permission). Set the AUTOMERGE_TOKEN secret (PAT with repo + workflow scope)
+          # so GitHub Actions bumps merge too.
+          GH_TOKEN: ${{ secrets.AUTOMERGE_TOKEN || secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           NUMBER: ${{ steps.pr.outputs.number }}
 
