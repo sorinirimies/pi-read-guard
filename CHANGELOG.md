@@ -3,6 +3,20 @@
 Generated from [Conventional Commits](https://www.conventionalcommits.org) by
 [git-cliff](https://git-cliff.org). Do not edit by hand.
 
+## [0.1.12](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.12) — 2026-10-31
+
+
+### 🐛 Fixes
+
+- `?` in an ignore glob matches one character (it reached the RegExp unescaped and threw on every tool call) ([`e75b169`](https://github.com/sorinirimies/pi-read-guard/commit/e75b1699760c644026c80693493886e2ec906df6))
+
+### 🧪 Tests
+
+- Seeded fuzz tests (FUZZ_ITERS / FUZZ_SEED; a failure prints the seed that reproduces it) ([`b89413d`](https://github.com/sorinirimies/pi-read-guard/commit/b89413d3ab32be604797e5d93023a9b787d9e258))
+
+### 🔧 Build & CI
+
+- Fuzz and Security workflows on GitHub and Gitea ([`8cfd1b6`](https://github.com/sorinirimies/pi-read-guard/commit/8cfd1b6797214b60c9683e9466616662e200c8a2))
 ## [0.1.11](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.11) — 2026-10-31
 
 
