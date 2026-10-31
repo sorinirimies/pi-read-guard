@@ -3,32 +3,58 @@
 Generated from [Conventional Commits](https://www.conventionalcommits.org) by
 [git-cliff](https://git-cliff.org). Do not edit by hand.
 
-## [0.1.10](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.10) — 2026-10-15
+## [0.1.11](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.11) — 2026-10-31
 
-
-### 📚 Docs
-
-- Separate install commands for individual copy ([`6f1a39a`](https://github.com/sorinirimies/pi-read-guard/commit/6f1a39a3cafa3132f1cfb113d59ae76b5ee1efc5))
 
 ### 🔧 Build & CI
 
-- Publish only when a runtime dependency really upgrades (or feat/fix/perf); dev-tooling updates no longer release ([`e709da4`](https://github.com/sorinirimies/pi-read-guard/commit/e709da4f3b88d99bab4e53864a245d797c12d560))
-- Don't release on ci(deps) (GitHub Actions) bumps ([`0b9ce1d`](https://github.com/sorinirimies/pi-read-guard/commit/0b9ce1dd993dc9dabae28caa231e66c90a11872e))
+- **deps:** Bump taiki-e/install-action from 2.87.27 to 2.87.29 (#5) ([`9cf2f72`](https://github.com/sorinirimies/pi-read-guard/commit/9cf2f725908a80dce550b31ab45d2e023d01bc0d))
+- **deps:** Bump taiki-e/install-action from 2.87.29 to 2.87.31 (#6) ([`18cb5df`](https://github.com/sorinirimies/pi-read-guard/commit/18cb5df527470529082ba657c40ee7ea84e0b553))
+- **deps:** Bump hustcer/setup-nu from 3.28 to 3.29 (#7) ([`71102d0`](https://github.com/sorinirimies/pi-read-guard/commit/71102d0f8931bfbb1a930a17b94b98a8fae64920))
+- Allow AUTOMERGE_TOKEN so workflow-file Dependabot PRs auto-merge ([`8da4a30`](https://github.com/sorinirimies/pi-read-guard/commit/8da4a3067a8eaf7fdedb23c638224924c1de126d))
+- **deps-dev:** Pin undici 8.12.3 via overrides ([`33b7a60`](https://github.com/sorinirimies/pi-read-guard/commit/33b7a60f9cd88fb7031c6381054cef4657abca31))
+- Keep .gitea workflow actions up to date; auto-merge needs GH_PAT for action bumps ([`241dec7`](https://github.com/sorinirimies/pi-read-guard/commit/241dec7551de40aeade8832e56aa954bfa28600b))
+- **deps:** Bump Gitea workflow actions ([`8f8d11f`](https://github.com/sorinirimies/pi-read-guard/commit/8f8d11ff17834a94188674c50328fecbd3aa160d))
+- One nightly (GitHub); Gitea mirrors GitHub's main and tags hourly ([`f2c15f4`](https://github.com/sorinirimies/pi-read-guard/commit/f2c15f4414f1d19375f7b9528496c2b3212f2133))
+
+### 🧹 Chores
+
+- Nightly dev-tooling lockfile update 2026-10-16 (not released) ([`c6e1fde`](https://github.com/sorinirimies/pi-read-guard/commit/c6e1fdee5dbd0b58f9743d60b24c8d7c1fbcfd0a))
+- Nightly dev-tooling lockfile update 2026-10-20 (not released) ([`7dbcf63`](https://github.com/sorinirimies/pi-read-guard/commit/7dbcf63d62a0dfe3130e645177e5cace47ab8fe1))
+- Nightly dev-tooling lockfile update 2026-10-21 (not released) ([`4e19ceb`](https://github.com/sorinirimies/pi-read-guard/commit/4e19ceb0d1a6c65b9bcfb8085e908c5db3a07f72))
+- Nightly dev-tooling lockfile update 2026-10-22 (not released) ([`103b9f1`](https://github.com/sorinirimies/pi-read-guard/commit/103b9f1bbaeced613e47eca53c494f23d4fb8652))
+- Nightly dev-tooling lockfile update 2026-10-23 (not released) ([`d9d4dc2`](https://github.com/sorinirimies/pi-read-guard/commit/d9d4dc2fcdbf9fefa05434b47ef75da1a1ab8c16))
+- Nightly dev-tooling lockfile update 2026-10-27 (not released) ([`85a2fe9`](https://github.com/sorinirimies/pi-read-guard/commit/85a2fe9c4bc06d609f8ca7a715d2e072bb9318ee))
+- Nightly dev-tooling lockfile update 2026-10-29 (not released) ([`9adb908`](https://github.com/sorinirimies/pi-read-guard/commit/9adb9089062a3a9bc23c062a1b475c551b08e0a5))
+- Nightly dev-tooling lockfile update 2026-10-30 (not released) ([`78c6cde`](https://github.com/sorinirimies/pi-read-guard/commit/78c6cde86f0be4478cf852a1407b7affce0325c3))
+- Nightly dev-tooling lockfile update 2026-10-31 (not released) ([`de56bf3`](https://github.com/sorinirimies/pi-read-guard/commit/de56bf3c094e2934cc5a84cf6c04c9f82e0fb8ca))
+- Nightly dev-tooling lockfile update 2026-10-31 (not released) ([`27ae4c7`](https://github.com/sorinirimies/pi-read-guard/commit/27ae4c70510176f9659b1f64976f68bc51b62b1f))
+- Merge Gitea's main (both hosts ran their own nightly) ([`46bb339`](https://github.com/sorinirimies/pi-read-guard/commit/46bb339cc5bb0be560f5b7eee18590fc425dfaef))
+## [0.1.10](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.10) — 2026-10-15
+
+
+### 🔧 Build & CI
+
+- Ignore commits already released via the other host's parallel nightly (no phantom patch release) ([`a299986`](https://github.com/sorinirimies/pi-read-guard/commit/a2999865130ef23ce2191505baf276dd014009f9))
 
 ### 🧹 Chores
 
 - **justfile:** Push/pull current branch instead of hardcoded main ([`96fb34c`](https://github.com/sorinirimies/pi-read-guard/commit/96fb34ca1d6780dd60a34dfd831f3095da194ff4))
 - Nightly dev-tooling lockfile update 2026-10-15 (not released) ([`4e58e2a`](https://github.com/sorinirimies/pi-read-guard/commit/4e58e2acbcb708d3bcba7ebc585ea48718588a28))
+- Nightly dev-tooling lockfile update 2026-10-15 (not released) ([`0947d64`](https://github.com/sorinirimies/pi-read-guard/commit/0947d646b401090fc1174bba5b28dfabcfeeb1ae))
 ## [0.1.9](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.9) — 2026-10-14
 
 
 ### 📚 Docs
 
 - Separate install commands for individual copy ([`1504fa3`](https://github.com/sorinirimies/pi-read-guard/commit/1504fa347cc4a5e3f45df295d4cd69a9c00f446f))
+- Separate install commands for individual copy ([`6f1a39a`](https://github.com/sorinirimies/pi-read-guard/commit/6f1a39a3cafa3132f1cfb113d59ae76b5ee1efc5))
 
 ### 🔧 Build & CI
 
 - Don't release on ci(deps) (GitHub Actions) bumps ([`262012b`](https://github.com/sorinirimies/pi-read-guard/commit/262012b48f19285d18a3bad8ce5f4a3eeb14d429))
+- Publish only when a runtime dependency really upgrades (or feat/fix/perf); dev-tooling updates no longer release ([`e709da4`](https://github.com/sorinirimies/pi-read-guard/commit/e709da4f3b88d99bab4e53864a245d797c12d560))
+- Don't release on ci(deps) (GitHub Actions) bumps ([`0b9ce1d`](https://github.com/sorinirimies/pi-read-guard/commit/0b9ce1dd993dc9dabae28caa231e66c90a11872e))
 ## [0.1.7](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.7) — 2026-10-12
 
 
