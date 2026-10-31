@@ -171,7 +171,14 @@ describe("fuzz: files", () => {
 		runs,
 	);
 
-	fuzz("resolveReadTarget never throws and gives an absolute path", (g) => {
-		expect(isAbsolute(resolveReadTarget(path(g), dir))).toBe(true);
-	});
+	// UNC paths (\\host\share, file://host/) make Windows ask the network: seconds per lookup.
+	fuzz(
+		"resolveReadTarget never throws and gives an absolute path",
+		(g) => {
+			const p = path(g);
+			if (/^(\\\\|\/\/)/.test(resolveToolPath(p, dir))) return;
+			expect(isAbsolute(resolveReadTarget(p, dir))).toBe(true);
+		},
+		runs,
+	);
 });
