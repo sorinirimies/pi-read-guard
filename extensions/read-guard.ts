@@ -53,11 +53,11 @@ async function loadConfig(): Promise<Config> {
 	}
 }
 
-/** Minimal glob (`*` = anything except `/`) against the path or its basename. */
+/** Minimal glob (`*` = anything except `/`, `?` = one such character) against the path or its basename. */
 export function matchesIgnore(path: string, patterns: string[]): boolean {
 	return patterns.some((pat) => {
 		if (pat.length > 256) return false; // absurd pattern: ignore it rather than risk slow matching
-		const body = pat.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*+/g, "*").replace(/\*/g, "[^/]*");
+		const body = pat.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*+/g, "*").replace(/\*/g, "[^/]*").replace(/\?/g, "[^/]");
 		const re = new RegExp(`^${body}$`);
 		return re.test(path) || re.test(basename(path));
 	});
