@@ -4,6 +4,8 @@
 [![npm downloads](https://img.shields.io/npm/dm/pi-read-guard.svg)](https://www.npmjs.com/package/pi-read-guard)
 [![CI](https://github.com/sorinirimies/pi-read-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/sorinirimies/pi-read-guard/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Audit](https://github.com/sorinirimies/pi-read-guard/actions/workflows/security.yml/badge.svg)](https://github.com/sorinirimies/pi-read-guard/actions/workflows/security.yml)
+[![Fuzz](https://github.com/sorinirimies/pi-read-guard/actions/workflows/fuzz.yml/badge.svg)](https://github.com/sorinirimies/pi-read-guard/actions/workflows/fuzz.yml)
 
 A [pi](https://github.com/earendil-works/pi-coding-agent) extension that prevents massive unbudgeted full-file reads, steering the agent to `offset`/`limit` or search tools.
 
