@@ -30,7 +30,7 @@ jobs:
       - name: Install nushell
         uses: hustcer/setup-nu@eacad52a4634c4f8d17a94916f93be6856861b9c # v3
         with:
-          version: "0.111.0"
+          version: "0.116.1"
 
       - run: bun install --frozen-lockfile
 
@@ -57,9 +57,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - { os: macos-latest }
-          - { os: windows-latest }
+        os: [macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 

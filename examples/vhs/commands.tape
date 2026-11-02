@@ -3,7 +3,7 @@
 # `allow <path>` lets one deliberate full read through.
 #
 # Runs a real pi with only the pi-read-guard extension loaded (and pi's built-in read, write and
-# edit tools), on the throw-away project from fixture.sh. A tiny scripted mock model (mock-llm.ts)
+# edit tools), on the throw-away project from fixture.nu. A tiny scripted mock model (mock-llm.ts)
 # plays the agent, so the recording shows the REAL guard reacting to REAL tool calls. HOME and
 # the pi agent dir are redirected into /tmp: it never touches your real files or settings.
 
@@ -18,12 +18,12 @@ Set PlaybackSpeed 1.0
 Set Theme "Catppuccin Mocha"
 
 Hide
-Type 'bash examples/vhs/fixture.sh >/dev/null && echo DONE-$((6*7))'
+Type 'nu examples/vhs/fixture.nu >/dev/null && echo DONE-$((6*7))'
 Enter
 Wait+Screen@60s /DONE-42/
-Type 'eval "$(examples/vhs/fixture.sh env)" && (bun examples/vhs/mock-llm.ts 8992 >/dev/null 2>&1 &) ; sleep 1 ; clear'
+Type 'eval "$(nu examples/vhs/fixture.nu env)" && (bun examples/vhs/mock-llm.ts 8992 >/dev/null 2>&1 &) ; sleep 1 ; clear'
 Enter
-Type "bash examples/vhs/pi-demo.sh"
+Type "nu examples/vhs/pi-demo.nu"
 Enter
 Wait+Screen@30s /demo-model/
 Show

@@ -26,7 +26,7 @@ jobs:
       - name: Install nushell
         uses: hustcer/setup-nu@eacad52a4634c4f8d17a94916f93be6856861b9c # v3
         with:
-          version: "0.111.0"
+          version: "0.116.1"
 
       - run: bun install --frozen-lockfile
 
