@@ -3,6 +3,23 @@
 Generated from [Conventional Commits](https://www.conventionalcommits.org) by
 [git-cliff](https://git-cliff.org). Do not edit by hand.
 
+## [0.1.14](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.14) — 2026-11-09
+
+
+### 🐛 Fixes
+
+- **ci:** Nightly commit step accepts bool arg from nu ([`ddd8d70`](https://github.com/sorinirimies/pi-read-guard/commit/ddd8d70ea73124f524ff2be70df5efe5fe9f0572))
+
+### 🔧 Build & CI
+
+- **deps:** Bump Gitea workflow actions ([`87da5b4`](https://github.com/sorinirimies/pi-read-guard/commit/87da5b406ba45fd24f935e59dd56d55838796b2e))
+- Align tooling with the plugin template ([`42874dd`](https://github.com/sorinirimies/pi-read-guard/commit/42874dd1a68bb26a4cee47a9ed2858278e053cff))
+- Scan the git history for secrets with gitleaks ([`87c6765`](https://github.com/sorinirimies/pi-read-guard/commit/87c676506a74be112b6251f90afe60e50177291e))
+
+### 🧹 Chores
+
+- Nightly dev-tooling lockfile update 2026-11-03 (not released) ([`d7af516`](https://github.com/sorinirimies/pi-read-guard/commit/d7af516059535de7c7fcf91edb3d0a195290b8c3))
+- Nightly dev-tooling lockfile update 2026-11-09 (not released) ([`b85a00b`](https://github.com/sorinirimies/pi-read-guard/commit/b85a00b5da56b334224288016027c447793d2e68))
 ## [0.1.13](https://github.com/sorinirimies/pi-read-guard/releases/tag/v0.1.13) — 2026-11-02
 
 
